@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Gestionnaire d'inventaire Guild Wars 2 | Thoanny</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="py-8 bg-gray-900">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-white text-4xl font-semibold p-4 flex gap-2 items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            GW2 Inventory Manager
+        </h1>
+        <div class="p-4 flex gap-2">
+            <label for="GW2ApiKey" class="hidden">Clé API Guild Wars 2</label>
+            <input type="password" class="bg-white bg-opacity-10 border rounded py-2 px-4 text-white w-full" placeholder="Clé API Guild Wars 2" id="GW2ApiKey">
+            <button class="bg-green-600 text-white font-semibold py-2 px-3 rounded" id="makeTheMagicHappen">OK</button>
+        </div>
+        <div id="log" class="text-white font-bold p-4"></div>
+        <div id="wrap" class="flex gap-6 px-4">
+            <div id="account"></div>
+            <div id="details" class="bg-white bg-opacity-10 p-4 rounded self-start sticky top-4 w-auto hidden"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+    <script id="template-details" type="text/x-handlebars-template">
+        <div class="flex gap-4 items-center">
+            <img src="https://v2.lebusmagique.fr/img/api/items/{{item.id}}.png" class="rounded self-start border-2 rarity-{{item.rarity}}">
+            <div class="text-lg leading-6 font-bold rarity-{{item.rarity}}">{{item.name}}</div>
+        </div>
+        {{#if item.description}}
+            <p class="mt-4 italic text-sm opacity-75">{{item.description}}</p>
+        {{/if}}
+        {{#if tip}}
+            <div class="mt-4 font-semibold flex gap-2">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+                <span>{{{tip}}}</span>
+            </div>
+        {{/if}}
+        {{#if storage}}
+            <div class="mt-3 border-b border-gray-500">
+                {{#if storage.bank}}
+                    <div class="flex items-center justify-between border-t border-gray-500 py-1">
+                        <span class="text-sm font-semibold">Banque</span>
+                        <span>&times;&nbsp;{{storage.bank}}</span>
+                    </div>
+                {{/if}}
+                {{#if storage.materials}}
+                    <div class="flex items-center justify-between border-t border-gray-500 py-1">
+                        <span class="text-sm font-semibold">Banque de matériaux</span>
+                        <span>&times;&nbsp;{{storage.materials}}</span>
+                    </div>
+                {{/if}}
+                {{#each storage.inventory}}
+                    <div class="flex items-center justify-between border-t border-gray-500 py-1">
+                        <span class="text-sm font-semibold">{{@key}}</span>
+                        <span>&times;&nbsp;{{this}}</span>
+                    </div>
+                {{/each}}
+
+                {{#if (gt total 1)}}
+                    <div class="flex items-center justify-between border-t border-gray-500 py-1 font-bold">
+                        <span class="text-sm">Total</span>
+                        <span>=&nbsp;{{total}}</span>
+                    </div>
+                {{/if}}
+
+            </div>
+        {{/if}}
+        {{#if item.vendor_value}}
+            <div class="flex justify-between mt-4">
+                <span>Vendre à un PNJ</span>
+                {{#currency}}{{item.vendor_value}}{{/currency}}
+            </div>
+        {{/if}}
+        {{#if item.buys}}
+            <div class="flex justify-between mt-4">
+                <span>Acheter au comptoir </span>
+                {{#currency}}{{item.buys.unit_price}}{{/currency}}
+            </div>
+        {{/if}}
+        {{#if item.sells}}
+            <div class="flex justify-between mt-2">
+                <span>Vendre au comptoir </span>
+                {{#currency}}{{item.sells.unit_price}}{{/currency}}
+            </div>
+        {{/if}}
+
+        <div class="flex gap-4 mt-4">
+            <a href="https://wiki-fr.guildwars2.com/wiki/{{item.name}}" target="_blank" class="flex items-center gap-2 justify-center py-2 px-3 border border-white block rounded text-sm w-full hover:bg-white hover:text-gray-900 font-semibold">
+                GW2 Wiki (FR)
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            </a>
+            <a href="https://v2.lebusmagique.fr/fr/items/{{item.id}}" target="_blank" class="flex items-center gap-2 justify-center py-2 px-3 border border-white block rounded text-sm w-full hover:bg-white hover:text-gray-900 font-semibold">
+                Le Bus Magique
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+            </a>
+        </div>
+
+    </script>
+
+    <script type="text/javascript" src="tips.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+form label {
+    font-weight: 600;
+    margin-bottom: .25rem;
+    display: block;
+}
+
+h4 {
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    margin-bottom: 1rem !important;
+    color: white;
+}
+
+.bags {
+    margin-bottom: 2rem;
+}
+
+.bags:last-child {
+    margin-bottom: 0;
+}
+
+.bag {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: .5rem;
+    border: 1px solid rgba(255, 255, 255, .5);
+    padding: .5rem;
+    border-radius: 4px;
+    max-width: calc((10 * (64px + 2px)) + (9 * .5rem));
+}
+
+.bag .item {
+    width: 64px;
+    height: 64px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    z-index: 3;
+}
+
+.bag .item:not(.empty) {
+    cursor: pointer;
+}
+
+.bag .item img {
+    border-radius: 3px;
+}
+
+.rarity-Exotic {
+    border-color: #fa0 !important;
+    color: #fa0 !important;
+}
+
+.rarity-Masterwork {
+    border-color: #32b112 !important;
+    color: #32b112 !important;
+}
+
+.rarity-Ascended {
+    border-color: #f48 !important;
+    color: #f48 !important;
+}
+
+.rarity-Fine {
+    border-color: #5291f0 !important;
+    color: #5291f0 !important;
+}
+
+.rarity-Legendary {
+    border-color: #93f !important;
+    color: #93f !important;
+}
+
+.rarity-Rare {
+    border-color: #f0d022 !important;
+    color: #f0d022 !important;
+}
+
+.rarity-Junk {
+    border-color: #aaa !important;
+    color: #aaa !important;
+}
+
+.rarity-Basic {
+    border-color: #fff !important;
+    color: #fff !important;
+}
+
+.item.empty {
+    background: rgba(255, 255, 255, .5);
+}
+
+.bag .item .count {
+    position: absolute;
+    bottom: 0rem;
+    right: 0rem;
+    font-size: .7rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 5px black;
+    background: rgba(0, 0, 0, .5);
+    border-radius: 4px 0 4px 0;
+    display: inline-block;
+    padding: .05rem .25rem;
+}
+
+#settingsPopup {
+    display: none;
+}
+
+#account {
+    width: calc((10 * (64px + 2px)) + (9 * .5rem));
+}
+
+#details {
+    width: calc(100% - ((10 * (64px + 2px)) + (9 * .5rem)) - 1.5rem);
+    color: white;
+}
+
+.currency {
+    display: inline-flex;
+    gap: .5rem;
+}
+
+.currency .gold:after,
+.currency .silver:after,
+.currency .copper:after {
+    content: '';
+    width: .75rem;
+    height: .75rem;
+    background: red;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: .25rem;
+}
+
+.currency .gold:after {
+    background: gold;
+}
+
+.currency .silver:after {
+    background: silver;
+}
+
+.currency .copper:after {
+    background: #D3824C;
+}
