@@ -1,9 +1,3 @@
-Handlebars.registerHelper('nl2br', function(text) {
-    text = Handlebars.Utils.escapeExpression(text);
-    text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
-    return new Handlebars.SafeString(text);
-});
-
 Handlebars.registerHelper("currency", function(options) {
     let money = parseInt(options.fn(this));
 
@@ -28,6 +22,35 @@ Handlebars.registerHelper('gt', function(a, b) {
     return (a > b);
 });
 
+Handlebars.registerHelper('assign', function (varName, varValue, options) {
+    if (!options.data.root) {
+        options.data.root = {};
+    }
+    options.data.root[varName] = varValue;
+});
+
+const chunkSize = 150;
+
+let apiKey;
+let Gw2ApiUrl = 'https://api.guildwars2.com/v2';
+
+let log = document.querySelector('#log');
+
+let data = {
+    'characters': {},
+    'bank': [],
+    'materials': [],
+    'itemsMax': {},
+    'itemsId': [],
+    'itemsChunks': [],
+    'itemsData': {},
+    'itemsStorage': {}
+};
+
+let accountData = localStorage.getItem('accountData');
+
+let characters = [];
+
 function template(name, data, target, append = false) {
     let hb = Handlebars.compile(document.querySelector(name).innerHTML);
     if(append) {
@@ -37,32 +60,24 @@ function template(name, data, target, append = false) {
     }
 }
 
-let apiKey;
-let Gw2ApiUrl = 'https://api.guildwars2.com/v2';
+function successCallback() {
+    return true;
+}
 
-let loadingCount = 3;
+function logCallback(text) {
+    log.classList.remove('text-red-500');
+    log.classList.add('text-green-500');
+    log.innerHTML = text;
+}
 
-let data = {
-    'characters': {},
-    'bank': [],
-    'materials': [],
-    'itemsMax': {},
-    'itemsId': [],
-    'itemsData': {},
-    'itemsStorage': {}
-};
-
-let log = document.querySelector('#log');
-
-document.addEventListener('loading', function (e) {
-    loadingCount--;
-    if(loadingCount === 0) {
-        document.dispatchEvent(new CustomEvent('loading', {detail: `Chargement des objets...`}));
-        getItems(data.itemsId);
-    } else {
-        log.innerHTML = e.detail;
+function arrayChunk(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
     }
-}, false);
+    return res;
+}
 
 function setItem(id, qt, type, character = null) {
     if(data.itemsId.indexOf(id) >= 0) {
@@ -92,192 +107,253 @@ function setItem(id, qt, type, character = null) {
     }
 }
 
-function array_chunk(arr, chunkSize) {
-    const res = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-        const chunk = arr.slice(i, i + chunkSize);
-        res.push(chunk);
-    }
-    return res;
-}
+function checkGW2ApiKeyPermissions() {
+    return new Promise((successCallback) => {
+        logCallback('Vérification de la clé API...');
+        fetch(`${Gw2ApiUrl}/tokeninfo?access_token=${GW2ApiKeyIpt.value}`)
+            .then((res) => {
 
-function getItems(items) {
-    const chunkSize = 150;
-    let itemsChunks = 0;
-    let itemsCurrent = 1;
-    let loadingItems = itemsChunks;
-
-    const ac = array_chunk(items, chunkSize);
-    itemsChunks = ac.length;
-    loadingItems = itemsChunks;
-
-    for(let i = 0; i < itemsChunks; i++) {
-        let ids = ac[i].join(',');
-
-        fetch(`${Gw2ApiUrl}/items?ids=${ids}`)
-            .then(res => {
-                document.dispatchEvent(new CustomEvent('loading', {detail: `Chargement des objets ${itemsCurrent}/${itemsChunks}...`}))
-
-                fetch(`${Gw2ApiUrl}/commerce/prices?ids=${ids}`)
-                    .then(res => {
-                        return res.json();
-                    }).then(prices => {
-                    prices.forEach(price => {
-                        data.itemsData[price.id].buys = price.buys;
-                        data.itemsData[price.id].sells = price.sells;
-                    });
-                });
-
+                if(!res.ok) {
+                    if (res.status === 401 ){
+                        return Promise.reject('Clé API Guild Wars 2 invalide...');
+                    } else {
+                        return Promise.reject(`Erreur ${res.status}`);
+                    }
+                }
                 return res.json();
-            }).then(items => {
-            items.forEach(item => {
-                data.itemsData[item.id] = item;
+            })
+            .then((data) => {
+                if(
+                    data.permissions.indexOf('account') >= 0 &&
+                    data.permissions.indexOf('inventories') >= 0 &&
+                    data.permissions.indexOf('characters') >= 0
+                ) {
+                    localStorage.setItem('GW2ApiKey', GW2ApiKeyIpt.value);
+                    apiKey = GW2ApiKeyIpt.value;
+                    successCallback();
+                } else {
+                    return Promise.reject('Autorisations requises&nbsp;: account, inventories et characters.');
+                }
             });
-            itemsCurrent++;
-            loadingItems--;
-        }).finally(() => {
-            if(loadingItems === 0) {
-                data.materials = {};
-                data.itemsId = {};
-
-                localStorage.setItem('accountData', JSON.stringify(data));
-                accountData = JSON.stringify(data);
-                document.dispatchEvent(new CustomEvent('loading', {detail: `Terminé !`}));
-                showAccountData(data);
-            }
-        });
-
-
-    }
-
+    });
 }
 
-function getCharacterInventory(c) {
-    fetch(`${Gw2ApiUrl}/characters/${c}/inventory?access_token=${apiKey}`)
-        .then(res => {
-            document.dispatchEvent(new CustomEvent('loading', {detail: `Chargement de l'inventaire de ${c}...`}))
+function getCharacters() {
+    return new Promise((successCallback) => {
+        fetch(`${Gw2ApiUrl}/characters?access_token=${apiKey}`).then(res => {
+            if(!res.ok) {
+                return Promise.reject('Impossible de charger les personnages...');
+            }
             return res.json();
-        })
-        .then(inventory => {
+        }).then(chars => {
+            chars.forEach(c => {
+                characters.push(c)
+            });
+            successCallback();
+        });
+    });
+}
+
+function getInventories() {
+    let charactersList = {};
+
+    characters.forEach(character => {
+        charactersList[character] = `${Gw2ApiUrl}/characters/${character}/inventory?access_token=${apiKey}`;
+    });
+
+    let promises = Object.entries(charactersList).map(c => {
+        return fetch(c[1]).then(function(res) {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger ${c[0]}...`);
+            }
+            return res.json();
+        }).then(inventory => {
+            logCallback(`Chargement de l\'inventaire de ${c[0]}...`);
             inventory.bags.forEach(bag => {
                 if(bag) {
                     bag.inventory.forEach(i => {
                         if(i) {
-                            this.setItem(i.id, i.count, 'inventory', c);
+                            setItem(i.id, i.count, 'inventory', c[0]);
                         }
                     });
                 }
             });
-            data.characters[c] = inventory;
+            data.characters[c[0]] = inventory;
         });
+    });
+
+    return Promise.all(promises).then(() => {
+        successCallback();
+    }).catch(() => {
+        return Promise.reject('Impossible de charger les inventaires des personnages...');
+    });
+
 }
 
 function getBank() {
-    fetch(`${Gw2ApiUrl}/account/bank?access_token=${apiKey}`)
-        .then(res => {
-            document.dispatchEvent(new CustomEvent('loading', {detail: `Chargement de la banque...`}));
+    return new Promise(successCallback => {
+        logCallback(`Chargement de la banque...`);
+        fetch(`${Gw2ApiUrl}/account/bank?access_token=${apiKey}`).then(res => {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger la banque...`);
+            }
             return res.json();
         }).then(bank => {
-        bank.forEach(i => {
-            if(i) {
-                this.setItem(i.id, i.count, 'bank');
-            }
+            bank.forEach(i => {
+                if(i) {
+                    setItem(i.id, i.count, 'bank');
+                }
+            });
+            data.bank = bank;
+            successCallback();
         });
-        data.bank = bank;
     });
 }
 
 function getMaterials() {
-    fetch(`${Gw2ApiUrl}/account/materials?access_token=${apiKey}`)
-        .then(res => {
-            document.dispatchEvent(new CustomEvent('loading', {detail: `Chargement de la banque de matériaux...`}));
+    return new Promise(successCallback => {
+        logCallback(`Chargement de la banque de matériaux...`);
+        fetch(`${Gw2ApiUrl}/account/materials?access_token=${apiKey}`).then(res => {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger la banque de matériaux...`);
+            }
             return res.json();
         }).then(materials => {
-        materials.forEach(i => {
-            if(i) {
-                setItem(i.id, i.count, 'materials');
-            }
+            materials.forEach(i => {
+                if(i) {
+                    setItem(i.id, i.count, 'materials');
+                }
+            });
+            data.materials = materials;
+            successCallback();
         });
-        data.materials = materials;
     });
 }
 
-function getUserData(apiKey) {
-    fetch(`${Gw2ApiUrl}/characters?access_token=${apiKey}`)
-        .then(res => res.json())
-        .then(characters => {
-            loadingCount += characters.length;
-            characters.forEach(k => {
-                this.getCharacterInventory(k)
+function setItemsChunks() {
+    return new Promise(successCallback => {
+        data.itemsChunks = arrayChunk(data.itemsId, chunkSize);
+        successCallback();
+    });
+}
+
+function getItemsData() {
+    let chunks = data.itemsChunks;
+    let total = chunks.length;
+
+    let itemsList = [];
+
+    for(let i = 0; i < total; i++) {
+        let ids = chunks[i].join(',');
+        itemsList.push(`${Gw2ApiUrl}/items?ids=${ids}`);
+    }
+
+    let current = 1;
+
+    let promises = itemsList.map(url => {
+        return fetch(url).then(function(res) {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger les objets...`);
+            }
+            return res.json();
+        }).then(items => {
+            let pc = Math.round(current / total * 100);
+            logCallback(`Chargement des objets ${pc} %...`);
+            items.forEach(item => {
+                data.itemsData[item.id] = item;
             });
-        }).then(() => {
-        this.getBank();
-    }).then(() => {
-        this.getMaterials();
+            current++;
+        });
+    });
+
+    return Promise.all(promises).then(() => {
+        successCallback();
+    }).catch(() => {
+        return Promise.reject('Impossible de charger les objets...');
+    });
+}
+
+function getItemsPrices() {
+    let chunks = data.itemsChunks;
+    let total = chunks.length;
+
+    let pricesList = [];
+
+    for(let i = 0; i < total; i++) {
+        let ids = chunks[i].join(',');
+        pricesList.push(`${Gw2ApiUrl}/commerce/prices?ids=${ids}`);
+    }
+
+    let current = 1;
+
+    let promises = pricesList.map(url => {
+        return fetch(url).then(function(res) {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger les prix...`);
+            }
+            return res.json();
+        }).then(prices => {
+            let pc = Math.round(current / total * 100);
+            logCallback(`Chargement des prix ${pc} %...`);
+            prices.forEach(price => {
+                data.itemsData[price.id].buys = price.buys;
+                data.itemsData[price.id].sells = price.sells;
+            });
+            current++;
+        });
+    });
+
+    return Promise.all(promises).then(() => {
+        successCallback();
+    }).catch(() => {
+        return Promise.reject('Impossible de charger les prix...');
+    });
+}
+
+function cleanAndSaveData() {
+    return new Promise(successCallback => {
+        logCallback('Nettoyage des données et sauvegarde...');
+
+        delete data.materials;
+        delete data.itemsId;
+        delete data.itemsChunks;
+        delete data.materials;
+
+        localStorage.setItem('accountData', JSON.stringify(data));
+        successCallback();
     });
 }
 
 function showAccountData(data) {
-    document.dispatchEvent(new CustomEvent('loading', {detail: ``}));
-
-    let html = '';
-
-    for(const [character, inventory] of Object.entries(data.characters)) {
-        html += `<h4>${character}</h4>`;
-        html += `<div class="bags">`;
-        inventory.bags.forEach(bag => {
-            if(bag) {
-                html += `<div class="bag size-${bag.size}">`;
-                bag.inventory.forEach(item => {
-                    if(item) {
-                        let itemData = data.itemsData[item.id];
-                        let rarity = (itemData && itemData.rarity) ? itemData.rarity : 'unknown';
-                        let count = item.count;
-                        let max = data.itemsMax[item.id];
-                        if(max && max > count) {
-                            count += `/${max}`;
-                        }
-
-                        html += `<div class="item rarity-${rarity}" data-item-id="${item.id}"><img src="https://v2.lebusmagique.fr/img/api/items/${item.id}.png" alt=""><span class="count">${count}</span></div>`;
-
-                    } else {
-                        html += `<div class="item empty"></div>`;
-                    }
-                });
-                html += `</div>`;
-            }
-
-        });
-        html += `</div>`;
+    log.innerHTML = '';
+    accountData = localStorage.getItem('accountData');
+    if(accountData) {
+        data = JSON.parse(accountData);
+        template('#template-account', {data}, '#account');
     }
+}
 
-    document.querySelector("#account").innerHTML += html;
-
-    html = '<h4>Banque</h4>';
-    html += `<div class="bags"><div class="bag">`;
-
-    data.bank.forEach((item, i) => {
-        if(i%20 === 0 && i !== 0) {
-            html += `</div><div class="bag">`;
-        }
-        if(item) {
-            let itemData = data.itemsData[item.id];
-            let rarity = (itemData && itemData.rarity) ? itemData.rarity : 'unknown';
-            let count = item.count;
-            let max = data.itemsMax[item.id];
-            if(max && max > count) {
-                count += `/${max}`;
-            }
-            html += `<div class="item rarity-${rarity}" data-item-id="${item.id}"><img src="https://v2.lebusmagique.fr/img/api/items/${item.id}.png" alt=""><span class="count">${count}</span></div>`;
-        } else {
-            html += `<div class="item empty"></div>`;
-        }
+function makeTheMagicHappen() {
+    document.querySelector("#account").innerHTML = '';
+    checkGW2ApiKeyPermissions().then(() => {
+        return getCharacters();
+    }).then(() => {
+        return getInventories();
+    }).then(() => {
+        return getBank();
+    }).then(() => {
+        return getMaterials();
+    }).then(() => {
+        return setItemsChunks();
+    }).then(() => {
+        return getItemsData();
+    }).then(() => {
+        return getItemsPrices();
+    }).then(() => {
+        return cleanAndSaveData();
+    }).then(() => {
+        return showAccountData();
     });
-
-    html += `</div></div>`;
-
-    document.querySelector("#account").innerHTML += html;
-
 }
 
 let GW2ApiKeyIpt = document.querySelector('input#GW2ApiKey');
@@ -286,45 +362,17 @@ if(GW2ApiKey) {
     GW2ApiKeyIpt.value = GW2ApiKey;
 }
 
-document.querySelector('button#makeTheMagicHappen').addEventListener('click', () => {
-
-    document.querySelector("#account").innerHTML = '';
-
-    fetch(`${Gw2ApiUrl}/tokeninfo?access_token=${GW2ApiKeyIpt.value}`)
-        .then((res) => {
-            if(res.ok) {
-                log.innerHTML = 'Vérification de la clé API...';
-                return res.json();
-            } else {
-                if(res.status === 401){
-                    log.innerHTML = `<span class="text-red-500">Clé API Guild Wars 2 invalide...</span>`;
-                } else {
-                    log.innerHTML = `<span class="text-red-500">Erreur ${res.status}</span>`;
-                }
-            }
-        })
-        .then((data) => {
-            // Vérifier les autorisations : account, inventories, characters
-            if(
-                data.permissions.indexOf('account') >= 0 &&
-                data.permissions.indexOf('inventories') >= 0 &&
-                data.permissions.indexOf('characters') >= 0
-            ) {
-                localStorage.setItem('GW2ApiKey', GW2ApiKeyIpt.value);
-                apiKey = GW2ApiKeyIpt.value;
-                document.dispatchEvent(new CustomEvent('loading', {detail: `Initialisation du script...`}));
-                getUserData(GW2ApiKeyIpt.value);
-            } else {
-                log.innerHTML = `<span class="text-red-500">Autorisations requises&nbsp;: account, inventories et characters.</span>`;
-            }
-        });
-});
-
-let accountData = localStorage.getItem('accountData');
-
 if(accountData) {
-    showAccountData(JSON.parse(accountData));
+    showAccountData();
 }
+
+document.querySelector('button#makeTheMagicHappen').addEventListener('click', makeTheMagicHappen);
+
+addEventListener('unhandledrejection', event => {
+    log.classList.remove('text-green-500');
+    log.classList.add('text-red-500');
+    log.innerHTML = event.reason;
+});
 
 document.addEventListener('click',function(e){
     let d = JSON.parse(accountData);

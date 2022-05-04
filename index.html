@@ -18,7 +18,7 @@
         </h1>
         <div class="p-4 flex gap-2">
             <label for="GW2ApiKey" class="hidden">Clé API Guild Wars 2</label>
-            <input type="password" class="bg-white bg-opacity-10 border rounded py-2 px-4 text-white w-full" placeholder="Clé API Guild Wars 2" id="GW2ApiKey">
+            <input type="password" class="bg-white bg-opacity-10 border rounded py-2 px-4 text-white w-full" placeholder="Clé API Guild Wars 2 (account, inventories, characters)" id="GW2ApiKey">
             <button class="bg-green-600 text-white font-semibold py-2 px-3 rounded" id="makeTheMagicHappen">OK</button>
         </div>
         <div id="log" class="text-white font-bold p-4"></div>
@@ -29,6 +29,50 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+    <script id="template-account" type="text/x-handlebars-template">
+        {{#each data.characters}}
+            <h4>{{@key}}</h4>
+            <div class="bags text-white">
+                {{#each bags}}
+                    {{#if this}}
+                        <div class="bag size-{{size}}">
+                            {{#each inventory}}
+                                {{#if this}}
+                                    {{assign 'item' (lookup ../../../data.itemsData id)}}
+                                    {{assign 'max' (lookup ../../../data.itemsMax id)}}
+                                    <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
+                                        <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                                        <span class="count">{{count}}/{{@root.max}}</span>
+                                    </div>
+                                {{else}}
+                                    <div class="item empty"></div>
+                                {{/if}}
+                            {{/each}}
+                        </div>
+                    {{/if}}
+                {{/each}}
+            </div>
+        {{/each}}
+
+        <h4>Banque</h4>
+        <div class="bags">
+            <div class="bag">
+                {{#each data.bank}}
+                    {{#if this}}
+                        {{assign 'item' (lookup ../data.itemsData id)}}
+                        {{assign 'max' (lookup ../data.itemsMax id)}}
+                        <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
+                            <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                            <span class="count">{{count}}/{{@root.max}}</span>
+                        </div>
+                    {{else}}
+                        <div class="item empty"></div>
+                    {{/if}}
+                {{/each}}
+            </div>
+        </div>
+    </script>
 
     <script id="template-details" type="text/x-handlebars-template">
         <div class="flex gap-4 items-center">
