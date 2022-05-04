@@ -332,6 +332,14 @@ function cleanAndSaveData() {
         delete data.itemsChunks;
         delete data.materials;
 
+        data.characters = Object.keys(data.characters).sort().reduce(
+            (obj, key) => {
+                obj[key] = data.characters[key];
+                return obj;
+            },
+            {}
+        );
+
         localStorage.setItem('accountData', JSON.stringify(data));
         successCallback();
     });
