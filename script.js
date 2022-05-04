@@ -18,6 +18,19 @@ Handlebars.registerHelper("currency", function(options) {
     return new Handlebars.SafeString('<span class="currency">' + currency + "</span>");
 });
 
+Handlebars.registerHelper("markdown", function(options) {
+    let markdown  = options.fn(this);
+    let links = markdown.match(/\[.*?\)/g);
+    if( links != null && links.length > 0){
+        for(let l in links) {
+            let txt = links[l].match(/\[(.*?)\]/)[1];
+            let url = links[l].match(/\((.*?)\)/)[1];
+            markdown = markdown.replace(links[l], `<a href="${url}" target="_blank" class="underline">${txt}</a>`);
+        }
+    }
+    return new Handlebars.SafeString(markdown);
+});
+
 Handlebars.registerHelper('gt', function(a, b) {
     return (a > b);
 });

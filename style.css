@@ -119,6 +119,11 @@ h4 {
     color: white;
 }
 
+#details img {
+    max-width: 64px;
+    max-height: 64px
+}
+
 .currency {
     display: inline-flex;
     gap: .5rem;
