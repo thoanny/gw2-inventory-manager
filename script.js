@@ -302,7 +302,8 @@ function getItemsPrices() {
     let promises = pricesList.map(url => {
         return fetch(url).then(function(res) {
             if(!res.ok) {
-                return Promise.reject(`Impossible de charger les prix...`);
+                return Promise.resolve();
+                // return Promise.reject(`Impossible de charger les prix...`);
             }
             return res.json();
         }).then(prices => {
