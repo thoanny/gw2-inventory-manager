@@ -352,11 +352,25 @@ function showAccountData(data) {
     if(accountData) {
         data = JSON.parse(accountData);
         template('#template-account', {data}, '#account');
+
+        document.querySelectorAll('.bag').forEach(bag => {
+            let items = 0;
+            bag.querySelectorAll('.item').forEach(slot => {
+                if(Array.from(slot.classList).indexOf('empty') < 0) {
+                    items++;
+                }
+            });
+
+            if(items === 0) {
+                bag.classList.add('hidden');
+            }
+        })
     }
 }
 
 function makeTheMagicHappen() {
     document.querySelector("#account").innerHTML = '';
+    document.querySelector('#details').classList.add('hidden');
     checkGW2ApiKeyPermissions().then(() => {
         return getCharacters();
     }).then(() => {
