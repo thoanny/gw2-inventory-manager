@@ -371,28 +371,19 @@ function showAccountData(data) {
     }
 }
 
-function makeTheMagicHappen() {
+async function makeTheMagicHappen() {
     document.querySelector("#account").innerHTML = '';
     document.querySelector('#details').classList.add('hidden');
-    checkGW2ApiKeyPermissions().then(() => {
-        return getCharacters();
-    }).then(() => {
-        return getInventories();
-    }).then(() => {
-        return getBank();
-    }).then(() => {
-        return getMaterials();
-    }).then(() => {
-        return setItemsChunks();
-    }).then(() => {
-        return getItemsData();
-    }).then(() => {
-        return getItemsPrices();
-    }).then(() => {
-        return cleanAndSaveData();
-    }).then(() => {
-        return showAccountData();
-    });
+    await checkGW2ApiKeyPermissions();
+    await getCharacters();
+    await getInventories();
+    await getBank();
+    await getMaterials();
+    await setItemsChunks();
+    await getItemsData();
+    await getItemsPrices();
+    await cleanAndSaveData();
+    await showAccountData();
 }
 
 let GW2ApiKeyIpt = document.querySelector('input#GW2ApiKey');
