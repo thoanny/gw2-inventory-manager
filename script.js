@@ -81,6 +81,7 @@ function logCallback(text) {
     log.classList.remove('text-red-500');
     log.classList.add('text-green-500');
     log.innerHTML = text;
+    // console.log(text);
 }
 
 function arrayChunk(arr, chunkSize) {
@@ -298,30 +299,32 @@ function getItemsPrices() {
         pricesList.push(`${Gw2ApiUrl}/commerce/prices?ids=${ids}`);
     }
 
-    let current = 1;
+    let current = 0;
 
     let promises = pricesList.map(url => {
         return fetch(url).then(function(res) {
             if(!res.ok) {
-                return Promise.reject(`Impossible de charger les prix...`);
+                return false;
             }
             return res.json();
         }).then(prices => {
+            current++;
+
+            if(!prices) {
+                return;
+            }
+
             let pc = Math.round(current / total * 100);
             logCallback(`Chargement des prix ${pc} %...`);
             prices.forEach(price => {
                 data.itemsData[price.id].buys = price.buys;
                 data.itemsData[price.id].sells = price.sells;
             });
-            current++;
+
         });
     });
 
-    return Promise.all(promises).then(() => {
-        successCallback();
-    }).catch(() => {
-        return Promise.reject('Impossible de charger les prix...');
-    });
+    return Promise.all(promises);
 }
 
 function cleanAndSaveData() {
