@@ -42,6 +42,10 @@ Handlebars.registerHelper('assign', function (varName, varValue, options) {
     options.data.root[varName] = varValue;
 });
 
+Handlebars.registerHelper('ifNotIn', function(elem, list, options) {
+    return (list.indexOf(elem) < 0) ? options.fn(this) : options.inverse(this);
+});
+
 const chunkSize = 150;
 
 let apiKey;
@@ -413,6 +417,8 @@ document.addEventListener('click',function(e){
         document.querySelector('#details').classList.remove('hidden');
 
         let id = parent.dataset.itemId;
+
+        console.log('item:', d.itemsData[id]);
 
         template('#template-details', {
             'item': d.itemsData[id],

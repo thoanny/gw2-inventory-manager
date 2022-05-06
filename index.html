@@ -133,12 +133,15 @@
 
             </div>
         {{/if}}
-        {{#if item.vendor_value}}
-            <div class="flex justify-between mt-4">
-                <span>Vendre à un PNJ</span>
-                {{#currency}}{{item.vendor_value}}{{/currency}}
-            </div>
-        {{/if}}
+        {{#ifNotIn 'NoSell' item.flags}}
+            {{#if item.vendor_value}}
+                <div class="flex justify-between mt-4">
+                    <span>Vendre à un PNJ</span>
+                    {{#currency}}{{item.vendor_value}}{{/currency}}
+                </div>
+            {{/if}}
+        {{/ifNotIn}}
+
         {{#if item.buys}}
             <div class="flex justify-between mt-4">
                 <span>Acheter au comptoir </span>
