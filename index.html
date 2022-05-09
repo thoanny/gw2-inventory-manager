@@ -59,6 +59,26 @@
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 
     <script id="template-account" type="text/x-handlebars-template">
+        {{#if data.shared}}
+            <h4>Inventaire partagé</h4>
+            <div class="bags text-white">
+                <div class="bag">
+                    {{#each data.shared}}
+                        {{#if this}}
+                            {{assign 'item' (lookup ../data.itemsData id)}}
+                            {{assign 'max' (lookup ../data.itemsMax id)}}
+                            <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
+                                <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                                <span class="count">{{count}}/{{@root.max}}</span>
+                            </div>
+                        {{else}}
+                            <div class="item empty"></div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+            </div>
+        {{/if}}
+
         {{#each data.characters}}
             <h4>{{@key}}</h4>
             <div class="bags text-white">
@@ -140,7 +160,14 @@
         {{/if}}
 
         {{#if storage}}
+            {{log storage}}
             <div class="mt-3 border-b border-gray-500">
+                {{#if storage.shared}}
+                    <div class="flex items-center justify-between border-t border-gray-500 py-1">
+                        <span class="text-sm font-semibold">Inventaire partagé</span>
+                        <span>&times;&nbsp;{{storage.shared}}</span>
+                    </div>
+                {{/if}}
                 {{#if storage.bank}}
                     <div class="flex items-center justify-between border-t border-gray-500 py-1">
                         <span class="text-sm font-semibold">Banque</span>

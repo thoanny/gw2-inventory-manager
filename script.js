@@ -59,6 +59,7 @@ let log = document.querySelector('#log');
 
 let data = {
     'characters': {},
+    'shared': [],
     'bank': [],
     'materials': [],
     'itemsMax': {},
@@ -113,6 +114,7 @@ function setItem(id, qt, type, character = null) {
         data.itemsStorage[id] = {
             'bank': 0,
             'materials': 0,
+            'shared': 0,
             'inventory': {}
         }
     }
@@ -252,6 +254,26 @@ function getMaterials() {
     });
 }
 
+function getSharedInventory() {
+    return new Promise(successCallback => {
+        logCallback(`Chargement de l'inventaire partagé...`);
+        fetch(`${Gw2ApiUrl}/account/inventory?access_token=${apiKey}`).then(res => {
+            if(!res.ok) {
+                return Promise.reject(`Impossible de charger l'inventaire partagé...`);
+            }
+            return res.json();
+        }).then(shared => {
+            shared.forEach(i => {
+                if(i) {
+                    setItem(i.id, i.count, 'shared');
+                }
+            });
+            data.shared = shared;
+            successCallback();
+        });
+    });
+}
+
 function setItemsChunks() {
     return new Promise(successCallback => {
         data.itemsChunks.sort();
@@ -385,6 +407,7 @@ async function makeTheMagicHappen() {
     await checkGW2ApiKeyPermissions();
     await getCharacters();
     await getInventories();
+    await getSharedInventory();
     await getBank();
     await getMaterials();
     await setItemsChunks();
