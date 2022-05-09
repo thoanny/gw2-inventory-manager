@@ -428,3 +428,19 @@ document.addEventListener('click',function(e){
         }, '#details');
     }
 });
+
+const helpPopup = document.querySelector('div#helpPopup');
+
+document.querySelector('a#helpButton').addEventListener('click', (e) => {
+    e.preventDefault();
+    helpPopup.classList.remove('hidden');
+
+    document.onkeydown = (e) => {
+        if(e.key === 'Escape' || e.key === 'Esc') {
+            helpPopup.classList.add('hidden');
+        }
+    }
+    document.querySelector('div#helpClose').addEventListener('click', () => {
+        helpPopup.classList.add('hidden');
+    });
+});
