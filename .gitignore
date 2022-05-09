@@ -1,2 +1,4 @@
 /.dcignore
 /.idea
+/node_modules
+tailwind.sh

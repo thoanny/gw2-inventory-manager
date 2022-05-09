@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 form label {
     font-weight: 600;
     margin-bottom: .25rem;
