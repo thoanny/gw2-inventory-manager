@@ -68,7 +68,7 @@
                             {{assign 'item' (lookup ../data.itemsData id)}}
                             {{assign 'max' (lookup ../data.itemsMax id)}}
                             <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
-                                <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                                <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" data-icon="{{@root.item.icon}}" />
                                 <span class="count">{{count}}/{{@root.max}}</span>
                             </div>
                         {{else}}
@@ -90,7 +90,7 @@
                                     {{assign 'item' (lookup ../../../data.itemsData id)}}
                                     {{assign 'max' (lookup ../../../data.itemsMax id)}}
                                     <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
-                                        <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                                        <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" data-icon="{{@root.item.icon}}" />
                                         <span class="count">{{count}}/{{@root.max}}</span>
                                     </div>
                                 {{else}}
@@ -111,7 +111,7 @@
                         {{assign 'item' (lookup ../data.itemsData id)}}
                         {{assign 'max' (lookup ../data.itemsMax id)}}
                         <div class="item rarity-{{@root.item.rarity}}" data-item-id="{{@root.item.id}}">
-                            <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" />
+                            <img src="https://v2.lebusmagique.fr/img/api/items/{{@root.item.id}}.png" data-icon="{{@root.item.icon}}" />
                             <span class="count">{{count}}/{{@root.max}}</span>
                         </div>
                     {{else}}
@@ -124,7 +124,7 @@
 
     <script id="template-details" type="text/x-handlebars-template">
         <div class="flex gap-4 items-center">
-            <img src="https://v2.lebusmagique.fr/img/api/items/{{item.id}}.png" class="rounded self-start border-2 rarity-{{item.rarity}}">
+            <img src="https://v2.lebusmagique.fr/img/api/items/{{item.id}}.png" class="rounded self-start border-2 rarity-{{item.rarity}}" onerror="this.src='{{@root.item.icon}}'">
             <div class="text-lg leading-6 font-bold rarity-{{item.rarity}}">{{item.name}}</div>
         </div>
         {{#if item.description}}
@@ -160,7 +160,6 @@
         {{/if}}
 
         {{#if storage}}
-            {{log storage}}
             <div class="mt-3 border-b border-gray-500">
                 {{#if storage.shared}}
                     <div class="flex items-center justify-between border-t border-gray-500 py-1">

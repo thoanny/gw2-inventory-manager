@@ -397,7 +397,13 @@ function showAccountData(data) {
             if(items === 0) {
                 bag.classList.add('hidden');
             }
-        })
+        });
+
+        document.querySelectorAll('img').forEach((img) => {
+            img.addEventListener('error', () => {
+                img.src= img.dataset.icon;
+            });
+        });
     }
 }
 
