@@ -1,3 +1,158 @@
+form label {
+  font-weight: 600;
+  margin-bottom: .25rem;
+  display: block;
+}
+
+h4 {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  margin-bottom: 1rem !important;
+  color: white;
+}
+
+.bags {
+  margin-bottom: 2rem;
+}
+
+.bags:last-child {
+  margin-bottom: 0;
+}
+
+.bag {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: .5rem;
+  border: 1px solid rgba(255, 255, 255, .5);
+  padding: .5rem;
+  border-radius: 4px;
+  max-width: calc((10 * (64px + 2px)) + (9 * .5rem));
+}
+
+.bag .item {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  z-index: 3;
+}
+
+.bag .item:not(.empty) {
+  cursor: pointer;
+}
+
+.bag .item img {
+  border-radius: 3px;
+}
+
+.rarity-Exotic {
+  border-color: #fa0 !important;
+  color: #fa0 !important;
+}
+
+.rarity-Masterwork {
+  border-color: #32b112 !important;
+  color: #32b112 !important;
+}
+
+.rarity-Ascended {
+  border-color: #f48 !important;
+  color: #f48 !important;
+}
+
+.rarity-Fine {
+  border-color: #5291f0 !important;
+  color: #5291f0 !important;
+}
+
+.rarity-Legendary {
+  border-color: #93f !important;
+  color: #93f !important;
+}
+
+.rarity-Rare {
+  border-color: #f0d022 !important;
+  color: #f0d022 !important;
+}
+
+.rarity-Junk {
+  border-color: #aaa !important;
+  color: #aaa !important;
+}
+
+.rarity-Basic {
+  border-color: #fff !important;
+  color: #fff !important;
+}
+
+.item.empty {
+  background: rgba(255, 255, 255, .5);
+}
+
+.bag .item .count {
+  position: absolute;
+  bottom: 0rem;
+  right: 0rem;
+  font-size: .7rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 5px black;
+  background: rgba(0, 0, 0, .5);
+  border-radius: 4px 0 4px 0;
+  display: inline-block;
+  padding: .05rem .25rem;
+}
+
+#settingsPopup {
+  display: none;
+}
+
+#account {
+  width: calc((10 * (64px + 2px)) + (9 * .5rem));
+}
+
+#details {
+  width: calc(100% - ((10 * (64px + 2px)) + (9 * .5rem)) - 1.5rem);
+  color: white;
+}
+
+#details img {
+  max-width: 64px;
+  max-height: 64px
+}
+
+.currency {
+  display: inline-flex;
+  gap: .5rem;
+}
+
+.currency .gold:after,
+.currency .silver:after,
+.currency .copper:after {
+  content: '';
+  width: .75rem;
+  height: .75rem;
+  background: red;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: .25rem;
+}
+
+.currency .gold:after {
+  background: gold;
+}
+
+.currency .silver:after {
+  background: silver;
+}
+
+.currency .copper:after {
+  background: #D3824C;
+}
+
 /*
 ! tailwindcss v3.0.24 | MIT License | https://tailwindcss.com
 */
@@ -489,10 +644,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   top: 1rem;
 }
 
-.left-4 {
-  left: 1rem;
-}
-
 .top-0 {
   top: 0px;
 }
@@ -505,18 +656,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   bottom: 0px;
 }
 
-.right-4 {
-  right: 1rem;
-}
-
-.-right-4 {
-  right: -1rem;
-}
-
-.-right-12 {
-  right: -3rem;
-}
-
 .top-2 {
   top: 0.5rem;
 }
@@ -527,10 +666,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .z-30 {
   z-index: 30;
-}
-
-.z-20 {
-  z-index: 20;
 }
 
 .mx-auto {
@@ -571,8 +706,8 @@ Ensure the default browser behavior of the `hidden` attribute.
   display: none;
 }
 
-.h-12 {
-  height: 3rem;
+.h-5 {
+  height: 1.25rem;
 }
 
 .h-6 {
@@ -583,10 +718,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   height: 1rem;
 }
 
-.h-5 {
-  height: 1.25rem;
-}
-
 .h-full {
   height: 100%;
 }
@@ -595,28 +726,24 @@ Ensure the default browser behavior of the `hidden` attribute.
   height: 2rem;
 }
 
-.w-12 {
-  width: 3rem;
-}
-
 .w-full {
   width: 100%;
 }
 
-.w-6 {
-  width: 1.5rem;
+.w-5 {
+  width: 1.25rem;
 }
 
 .w-auto {
   width: auto;
 }
 
-.w-4 {
-  width: 1rem;
+.w-6 {
+  width: 1.5rem;
 }
 
-.w-5 {
-  width: 1.25rem;
+.w-4 {
+  width: 1rem;
 }
 
 .w-8 {
@@ -625,14 +752,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .max-w-6xl {
   max-width: 72rem;
-}
-
-.max-w-4xl {
-  max-width: 56rem;
-}
-
-.max-w-3xl {
-  max-width: 48rem;
 }
 
 .max-w-2xl {
@@ -704,6 +823,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-color: rgb(22 163 74 / var(--tw-border-opacity));
 }
 
+.border-blue-600 {
+  --tw-border-opacity: 1;
+  border-color: rgb(37 99 235 / var(--tw-border-opacity));
+}
+
 .border-white {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
@@ -712,11 +836,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .border-gray-500 {
   --tw-border-opacity: 1;
   border-color: rgb(107 114 128 / var(--tw-border-opacity));
-}
-
-.border-blue-600 {
-  --tw-border-opacity: 1;
-  border-color: rgb(37 99 235 / var(--tw-border-opacity));
 }
 
 .bg-gray-900 {
@@ -760,10 +879,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding: 0.5rem;
 }
 
-.p-12 {
-  padding: 3rem;
-}
-
 .py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
@@ -789,11 +904,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-bottom: 0.25rem;
 }
 
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
 .pr-12 {
   padding-right: 3rem;
 }
@@ -802,9 +912,9 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-left: 1rem;
 }
 
-.text-4xl {
-  font-size: 2.25rem;
-  line-height: 2.5rem;
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 
 .text-lg {
@@ -815,16 +925,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
-}
-
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
-}
-
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
 }
 
 .font-semibold {
@@ -863,166 +963,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-form label {
-  font-weight: 600;
-  margin-bottom: .25rem;
-  display: block;
-}
-
-h4 {
-  font-size: 1.5rem !important;
-  font-weight: bold !important;
-  margin-bottom: 1rem !important;
-  color: white;
-}
-
-.bags {
-  margin-bottom: 2rem;
-}
-
-.bags:last-child {
-  margin-bottom: 0;
-}
-
-.bag {
-  display: flex;
-  gap: .5rem;
-  flex-wrap: wrap;
-  margin-bottom: .5rem;
-  border: 1px solid rgba(255, 255, 255, .5);
-  padding: .5rem;
-  border-radius: 4px;
-  max-width: calc((10 * (64px + 2px)) + (9 * .5rem));
-}
-
-.bag .item {
-  width: 64px;
-  height: 64px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  z-index: 3;
-}
-
-.bag .item:not(.empty) {
-  cursor: pointer;
-}
-
-.bag .item img {
-  border-radius: 3px;
-}
-
-.rarity-Exotic {
-  border-color: #fa0 !important;
-  color: #fa0 !important;
-}
-
-.rarity-Masterwork {
-  border-color: #32b112 !important;
-  color: #32b112 !important;
-}
-
-.rarity-Ascended {
-  border-color: #f48 !important;
-  color: #f48 !important;
-}
-
-.rarity-Fine {
-  border-color: #5291f0 !important;
-  color: #5291f0 !important;
-}
-
-.rarity-Legendary {
-  border-color: #93f !important;
-  color: #93f !important;
-}
-
-.rarity-Rare {
-  border-color: #f0d022 !important;
-  color: #f0d022 !important;
-}
-
-.rarity-Junk {
-  border-color: #aaa !important;
-  color: #aaa !important;
-}
-
-.rarity-Basic {
-  border-color: #fff !important;
-  color: #fff !important;
-}
-
-.item.empty {
-  background: rgba(255, 255, 255, .5);
-}
-
-.bag .item .count {
-  position: absolute;
-  bottom: 0rem;
-  right: 0rem;
-  font-size: .7rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 0 5px black;
-  background: rgba(0, 0, 0, .5);
-  border-radius: 4px 0 4px 0;
-  display: inline-block;
-  padding: .05rem .25rem;
-}
-
-#settingsPopup {
-  display: none;
-}
-
-#account {
-  width: calc((10 * (64px + 2px)) + (9 * .5rem));
-}
-
-#details {
-  width: calc(100% - ((10 * (64px + 2px)) + (9 * .5rem)) - 1.5rem);
-  color: white;
-}
-
-#details img {
-  max-width: 64px;
-  max-height: 64px
-}
-
-.currency {
-  display: inline-flex;
-  gap: .5rem;
-}
-
-.currency .gold:after,
-.currency .silver:after,
-.currency .copper:after {
-  content: '';
-  width: .75rem;
-  height: .75rem;
-  background: red;
-  border-radius: 50%;
-  display: inline-block;
-  margin-left: .25rem;
-}
-
-.currency .gold:after {
-  background: gold;
-}
-
-.currency .silver:after {
-  background: silver;
-}
-
-.currency .copper:after {
-  background: #D3824C;
-}
-
-.hover\:bg-white:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-green-500:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(34 197 94 / var(--tw-bg-opacity));
@@ -1031,6 +971,11 @@ h4 {
 .hover\:bg-blue-500:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-white:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .hover\:text-gray-900:hover {
