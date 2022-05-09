@@ -46,6 +46,10 @@ Handlebars.registerHelper('ifNotIn', function(elem, list, options) {
     return (list.indexOf(elem) < 0) ? options.fn(this) : options.inverse(this);
 });
 
+Handlebars.registerHelper('isJunk', function (value) {
+    return value === 'Junk';
+});
+
 const chunkSize = 150;
 
 let apiKey;
