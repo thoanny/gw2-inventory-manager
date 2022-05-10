@@ -102,6 +102,8 @@ function arrayChunk(arr, chunkSize) {
     return res;
 }
 
+const zeroPad = (num) => String(num).padStart(2, '0');
+
 function setItem(id, qt, type, character = null) {
     if(data.itemsId.indexOf(id) >= 0) {
         data.itemsMax[id] += qt;
@@ -374,14 +376,60 @@ function cleanAndSaveData() {
             {}
         );
 
+        // Enregistrer pour les stats
+        let stats = localStorage.getItem('stats');
+        if(stats) {
+            stats = JSON.parse(stats);
+        } else {
+            stats = {};
+        }
+
+        let now = new Date();
+        now = `${now.getFullYear()}-${zeroPad(now.getMonth()+1)}-${zeroPad(now.getDate())} ${zeroPad(now.getHours())}:${zeroPad(now.getUTCMinutes())}:${zeroPad(now.getSeconds())}`;
+
+        stats[now] = {
+            'bank': {
+                'min': 0,
+                'max': data.bank.length,
+            },
+            'inventory': {
+                'min': 0,
+                'max': 0
+            }
+        }
+
+        data.bank.forEach((item) => {
+            if(item !== null) {
+                stats[now].bank.min += 1;
+            }
+        });
+
+        for(const [c, character] of Object.entries(data.characters)) {
+            for(const [b, bag] of Object.entries(character.bags)) {
+                if(bag) {
+                    stats[now].inventory.max += bag.size;
+                    bag.inventory.forEach((item) => {
+                        if(item !== null) {
+                            stats[now].inventory.min += 1;
+                        }
+                    });
+                }
+            }
+        }
+
+        localStorage.setItem('stats', JSON.stringify(stats));
+
         localStorage.setItem('accountData', JSON.stringify(data));
         successCallback();
     });
 }
 
+let statChart;
+
 function showAccountData(data) {
     log.innerHTML = '';
     accountData = localStorage.getItem('accountData');
+
     if(accountData) {
         data = JSON.parse(accountData);
         template('#template-account', {data}, '#account');
@@ -404,12 +452,72 @@ function showAccountData(data) {
                 img.src= img.dataset.icon;
             });
         });
+
+        let stats = localStorage.getItem('stats');
+        stats = JSON.parse(stats);
+
+        if(stats) {
+            if(typeof statChart !== 'undefined') {
+                statChart.destroy();
+            }
+            document.querySelector('#stats').classList.remove('hidden');
+
+            const ctx = document.getElementById('chart').getContext('2d');
+
+            let labels = [];
+            let datasets = [];
+            let min = [];
+            let max = [];
+
+            for(const [date, data] of Object.entries(stats)) {
+                labels.push(date);
+                min.push(data.inventory.min+data.bank.min);
+                max.push(data.inventory.max+data.bank.max);
+            }
+
+            datasets.push({
+                label: 'Occupé',
+                data: min,
+                backgroundColor: '#e74c3c',
+                borderColor: '#e74c3c',
+                borderWidth: 1,
+                fill: true
+            });
+
+            datasets.push({
+                label: 'Total',
+                data: max,
+                backgroundColor: '#2ecc71',
+                borderColor: '#2ecc71',
+                borderWidth: 1,
+                fill: true,
+            });
+
+            statChart = new Chart(ctx, {
+                color: 'white',
+                responsive: true,
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
     }
 }
 
 async function makeTheMagicHappen() {
     document.querySelector("#account").innerHTML = '';
     document.querySelector('#details').classList.add('hidden');
+    document.querySelector('#stats').classList.add('hidden');
     await checkGW2ApiKeyPermissions();
     await getCharacters();
     await getInventories();

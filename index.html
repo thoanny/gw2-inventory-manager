@@ -56,7 +56,14 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <div class="max-w-6xl mx-auto flex gap-6 p-4 mt-6">
+        <div class="w-full bg-white rounded p-4 hidden" id="stats">
+            <div class="text-lg font-semibold text-black mb-4 text-center">Encombrement des inventaires et de la banque</div>
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
+    <div class="text-red-500 text-green-500"></div>
 
     <script id="template-account" type="text/x-handlebars-template">
         {{#if data.shared}}
@@ -256,6 +263,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="tips.js"></script>
     <script type="text/javascript" src="script.js"></script>
 
